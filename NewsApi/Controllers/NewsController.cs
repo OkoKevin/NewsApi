@@ -29,6 +29,16 @@ namespace NewsApi.Controllers
         [HttpGet("articles/{numberOfArticles}")]
         public async Task<IActionResult> GetNArticles(int numberOfArticles)
         {
+            if (string.IsNullOrEmpty(_apiKey))
+            {
+                string errorResponse = "The Api Key for the GNews API could not be found!";
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+            if (numberOfArticles <= 0 || numberOfArticles > 100)
+            {
+                string errorResponse = "The number of requested articles has to be between 1 and 100!";
+                return StatusCode(StatusCodes.Status400BadRequest, errorResponse);
+            }
             //implemented according to the reference implementation from the GNews documentation
             string url = $"https://gnews.io/api/v4/top-headlines?max={numberOfArticles}&apikey={_apiKey}";
             HttpClient client = new HttpClient();
