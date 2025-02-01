@@ -44,15 +44,18 @@ namespace NewsApi.Controllers
             string url = $"https://gnews.io/api/v4/top-headlines?max={limit}&apikey={_apiKey}";
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode, responseBody);
+            }
             ApiResponse data = JsonConvert.DeserializeObject<ApiResponse>(responseBody);
             List<Article> articles = data.Articles;
             return Ok(articles);
         }
 
         [HttpGet("articles/search")]
-        public async Task<IActionResult> SearchArticles([FromQuery] string query, [FromQuery] int limit)
+        public async Task<IActionResult> SearchArticles([FromQuery] string? query, [FromQuery] int limit = 1)
         {
             if (string.IsNullOrEmpty(_apiKey))
             {
@@ -70,11 +73,51 @@ namespace NewsApi.Controllers
                 return BadRequest(errorResponse);
             }
             //implemented according to the reference implementation from the GNews documentation
-            string url = $"https://gnews.io/api/v4/search?q={query}&max={limit}&apikey={_apiKey}";
+            string url = $"https://gnews.io/api/v4/top-headlines?q={query}&max={limit}&apikey={_apiKey}";
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode, responseBody);
+            }
+            var data = JsonConvert.DeserializeObject<ApiResponse>(responseBody);
+            List<Article> articles = data.Articles;
+            return Ok(articles);
+        }
+
+        [HttpGet("articles/bydate")]
+        public async Task<IActionResult> FilterArticlesByDate([FromQuery] DateTime? from, [FromQuery] DateTime? to,[FromQuery] int limit = 100)
+        {
+            if (string.IsNullOrEmpty(_apiKey))
+            {
+                string errorResponse = "The Api Key for the GNews API could not be found!";
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
+            }
+            if (limit <= 0 || limit > 100)
+            {
+                string errorResponse = "A 'limit' query parameter between 1 and 100 is required!";
+                return BadRequest(errorResponse);
+            }
+            if (!from.HasValue)
+            {
+                string errorResponse = "A 'from' query parameter is required!";
+                return BadRequest(errorResponse);
+            }
+            if (!to.HasValue)
+            {
+                string errorResponse = "A 'to' query parameter is required!";
+                return BadRequest(errorResponse);
+            }
+            //implemented according to the reference implementation from the GNews documentation
+            string url = $"https://gnews.io/api/v4/top-headlines?from={from}&to={to}&max={limit}&apikey={_apiKey}";
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(url);
+            string responseBody = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)response.StatusCode, responseBody);
+            }
             var data = JsonConvert.DeserializeObject<ApiResponse>(responseBody);
             List<Article> articles = data.Articles;
             return Ok(articles);
