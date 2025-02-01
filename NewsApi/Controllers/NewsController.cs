@@ -27,6 +27,10 @@ namespace NewsApi.Controllers
             _apiKey = configuration.GetValue<string>("ApiKey");
         }
 
+        /// <summary>
+        /// Requires a 'limit' query parameter between 1 and 100. 
+        /// Returns a number of news articles depending on the limit
+        /// </summary>
         [HttpGet("articles")]
         public async Task<IActionResult> GetNArticles([FromQuery] int limit)
         {
@@ -54,6 +58,10 @@ namespace NewsApi.Controllers
             return Ok(articles);
         }
 
+        /// <summary>
+        /// Searches for news articles filtered by the keyword in the 'query' parameter. 
+        /// Returns news articles filtered by the keyword in the 'query' parameter. 
+        /// </summary>
         [HttpGet("articles/search")]
         public async Task<IActionResult> SearchArticles([FromQuery] string? query, [FromQuery] int limit = 1)
         {
@@ -86,6 +94,11 @@ namespace NewsApi.Controllers
             return Ok(articles);
         }
 
+        /// <summary>
+        /// Filters news articles by date. 
+        /// Requires a 'from' and a 'to' date in the following format: 2022-08-21T16:27:09Z 
+        /// Returns news articles filtered by 'from' and 'to' date.
+        /// </summary>
         [HttpGet("articles/bydate")]
         public async Task<IActionResult> FilterArticlesByDate([FromQuery] DateTime? from, [FromQuery] DateTime? to,[FromQuery] int limit = 100)
         {

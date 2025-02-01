@@ -15,6 +15,7 @@ using System.Security.Claims;
 using System.Security.Policy;
 using System.Text.Encodings.Web;
 using System.Threading.RateLimiting;
+using System.Reflection;
 
 namespace NewsApi
 {
@@ -33,6 +34,13 @@ namespace NewsApi
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSwaggerGen(c =>
             {
+                String xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                String xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFilename);
+
+                if (File.Exists(xmlPath)) // Ensure the file exists
+                {
+                    c.IncludeXmlComments(xmlPath);
+                }
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NewsApi", Version = "v1" });
                 c.IgnoreObsoleteActions();
             });
