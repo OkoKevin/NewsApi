@@ -19,11 +19,11 @@ namespace NewsApi.Controllers
     [Route("[controller]")]
     public class NewsController : ControllerBase
     {
-        private string? _apiKey;
+        private string? _apiKey { get; set; }
 
-        public NewsController(IHttpContextAccessor httpContextAccessor)
+        public NewsController(IConfiguration configuration)
         {
-            _apiKey = (string?)httpContextAccessor.HttpContext.Items["apiKey"];
+            _apiKey = configuration.GetValue<string>("ApiKey");
         }
 
         [HttpGet("articles/{numberOfArticles}")]
