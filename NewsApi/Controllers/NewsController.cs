@@ -59,11 +59,11 @@ namespace NewsApi.Controllers
         }
 
         /// <summary>
-        /// Searches for news articles filtered by the keyword in the 'query' parameter. 
-        /// Returns news articles filtered by the keyword in the 'query' parameter. 
+        /// Searches for news articles filtered by the keyword in the 'keyword' parameter. 
+        /// Returns news articles filtered by the keyword in the 'keyword' parameter. 
         /// </summary>
         [HttpGet("articles/search")]
-        public async Task<IActionResult> SearchArticles([FromQuery] string? query, [FromQuery] int limit = 1)
+        public async Task<IActionResult> SearchArticles([FromQuery] string? keyword, [FromQuery] int limit = 1)
         {
             if (string.IsNullOrEmpty(_apiKey))
             {
@@ -75,13 +75,13 @@ namespace NewsApi.Controllers
                 string errorResponse = "A 'limit' query parameter between 1 and 100 is required!";
                 return BadRequest(errorResponse);
             }
-            if (string.IsNullOrEmpty(query))
+            if (string.IsNullOrEmpty(keyword))
             {
                 string errorResponse = "A 'query' query parameter is required!";
                 return BadRequest(errorResponse);
             }
             //implemented according to the reference implementation from the GNews documentation
-            string url = $"https://gnews.io/api/v4/top-headlines?q={query}&max={limit}&apikey={_apiKey}";
+            string url = $"https://gnews.io/api/v4/top-headlines?q={keyword}&max={limit}&apikey={_apiKey}";
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.GetAsync(url);
             string responseBody = await response.Content.ReadAsStringAsync();
